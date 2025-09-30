@@ -45,3 +45,17 @@ func (h *OccupationHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(occ)
 }
+
+func (h *OccupationHandler) GetSimilar(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	similar, err := h.repo.GetSimilar(id)
+	if err != nil {
+		http.Error(w, "Failed to retrieve similar occupations", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(similar)
+}
