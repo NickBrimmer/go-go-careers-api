@@ -7,7 +7,7 @@ To get this API up and going
 - run `make dev`
 
 Current Endpoints:
-- /health (status)
-- /occupations       (get all occupations)
-- /occupations/{id}  (get occupatoin by id)
-- /search            (search occupations by title)
+- `/health` (status)
+- `/occupations`       (get all occupations)
+- `/occupations/{id}`  (get occupatoin by id)
+- `/search`            (search occupations by title)
