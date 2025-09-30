@@ -10,19 +10,10 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
+	"go-careers/server/handlers"
 )
 
 var db *sql.DB
-
-type Occupation struct {
-	ID             string `json:"id"`
-	SocID          string `json:"soc_id"`
-	SocTitle       string `json:"soc_title"`
-	Title          string `json:"title"`
-	SingularTitle  string `json:"singular_title"`
-	Description    string `json:"description"`
-	TypicalEdLevel string `json:"typical_ed_level"`
-}
 
 func initDB() {
 	dbHost := getEnv("DB_HOST", "localhost")
@@ -59,47 +50,6 @@ func healthCheck(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
 }
 
-func getOccupations(w http.ResponseWriter, r *http.Request) {
-	rows, err := db.Query("SELECT id, soc_id, soc_title, title, singular_title, description, typical_ed_level FROM occupations LIMIT 10")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	defer rows.Close()
-
-	var occupations []Occupation
-	for rows.Next() {
-		var occ Occupation
-		if err := rows.Scan(&occ.ID, &occ.SocID, &occ.SocTitle, &occ.Title, &occ.SingularTitle, &occ.Description, &occ.TypicalEdLevel); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		occupations = append(occupations, occ)
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(occupations)
-}
-
-func getOccupation(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id := vars["id"]
-
-	var occ Occupation
-	err := db.QueryRow("SELECT id, soc_id, soc_title, title, singular_title, description, typical_ed_level FROM occupations WHERE id = ?", id).
-		Scan(&occ.ID, &occ.SocID, &occ.SocTitle, &occ.Title, &occ.SingularTitle, &occ.Description, &occ.TypicalEdLevel)
-
-	if err == sql.ErrNoRows {
-		http.Error(w, "Occupation not found", http.StatusNotFound)
-		return
-	} else if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(occ)
-}
 
 func main() {
 	initDB()
@@ -108,8 +58,8 @@ func main() {
 	r := mux.NewRouter()
 
 	r.HandleFunc("/health", healthCheck).Methods("GET")
-	r.HandleFunc("/occupations", getOccupations).Methods("GET")
-	r.HandleFunc("/occupations/{id}", getOccupation).Methods("GET")
+	r.HandleFunc("/occupations", handlers.GetOccupations(db)).Methods("GET")
+	r.HandleFunc("/occupations/{id}", handlers.GetOccupation(db)).Methods("GET")
 
 	port := getEnv("PORT", "5000")
 	log.Printf("Server starting on port %s", port)
