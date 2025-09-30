@@ -40,7 +40,9 @@ func (h *CreateCareersHandler) CreateBatch(w http.ResponseWriter, r *http.Reques
 
 	// Insert batch
 	if err := h.repo.CreateBatch(occupations); err != nil {
-		http.Error(w, fmt.Sprintf("Database error: %s", err.Error()), http.StatusInternalServerError)
+		// Log the actual error for debugging
+		fmt.Printf("Database error creating occupations: %v\n", err)
+		http.Error(w, "Failed to create occupations", http.StatusInternalServerError)
 		return
 	}
 

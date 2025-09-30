@@ -11,6 +11,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 	"go-careers/handlers"
+	"go-careers/middleware"
 	"go-careers/repository"
 )
 
@@ -70,7 +71,14 @@ func main() {
 	r.HandleFunc("/occupations", createHandler.CreateBatch).Methods("POST")
 	r.HandleFunc("/occupations/{id}", occupationHandler.GetByID).Methods("GET")
 
+	// Apply security middleware
+	rateLimiter := middleware.NewRateLimiter(100) // 100 requests per minute
+	handler := middleware.CORS(r)
+	handler = middleware.SecurityHeaders(handler)
+	handler = middleware.RequestSizeLimit(1048576)(handler) // 1MB limit
+	handler = rateLimiter.Limit(handler)
+
 	port := getEnv("PORT", "5000")
 	log.Printf("Server starting on port %s", port)
-	log.Fatal(http.ListenAndServe(":"+port, r))
+	log.Fatal(http.ListenAndServe(":"+port, handler))
 }
