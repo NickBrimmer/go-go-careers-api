@@ -1,0 +1,40 @@
+services:
+  app:
+    build: .
+    command: air -c .air.toml
+    environment:
+      GO_ENV: development
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+    env_file:
+      - path: .env
+        required: false
+    depends_on:
+      - mysql
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/home/apiUser/app
+
+  nginx:
+    build: ./config/nginx
+    network_mode: host
+
+  mysql:
+    image: mysql:8
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: ${DB_NAME:-go_careers}
+      MYSQL_USER: ${DB_USER:-apiuser}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-password}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:
