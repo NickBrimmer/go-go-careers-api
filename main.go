@@ -59,11 +59,12 @@ func main() {
 
 	// Initialize handlers
 	occupationHandler := handlers.NewOccupationHandler(occupationRepo)
+	searchHandler := handlers.NewSearchHandler(occupationRepo)
 
 	// Setup routes
 	r := mux.NewRouter()
 	r.HandleFunc("/health", healthCheck).Methods("GET")
-	r.HandleFunc("/search", occupationHandler.Search).Methods("GET")
+	r.HandleFunc("/search", searchHandler.Search).Methods("GET")
 	r.HandleFunc("/occupations", occupationHandler.GetAll).Methods("GET")
 	r.HandleFunc("/occupations/{id}", occupationHandler.GetByID).Methods("GET")
 
