@@ -70,6 +70,7 @@ func main() {
 	r.HandleFunc("/occupations", occupationHandler.GetAll).Methods("GET")
 	r.HandleFunc("/occupations", createHandler.CreateBatch).Methods("POST")
 	r.HandleFunc("/occupations/{id}", occupationHandler.GetByID).Methods("GET")
+	r.HandleFunc("/occupations/{id}/similar", occupationHandler.GetSimilar).Methods("GET")
 
 	// Apply security middleware
 	rateLimiter := middleware.NewRateLimiter(100) // 100 requests per minute
