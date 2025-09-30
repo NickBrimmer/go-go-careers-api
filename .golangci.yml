@@ -1,0 +1,44 @@
+run:
+  timeout: 5m
+  tests: true
+
+linters:
+  enable:
+    - errcheck      # Check for unchecked errors
+    - gosimple      # Simplify code
+    - govet         # Reports suspicious constructs
+    - ineffassign   # Detects unused assignments
+    - staticcheck   # Advanced Go linting
+    - unused        # Checks for unused code
+    - gofmt         # Checks code formatting
+    - goimports     # Checks import formatting
+    - misspell      # Finds commonly misspelled words
+    - gocritic      # Provides many diagnostics
+    - revive        # Fast, configurable linter
+
+linters-settings:
+  errcheck:
+    check-blank: true
+    check-type-assertions: true
+
+  govet:
+    check-shadowing: true
+
+  gofmt:
+    simplify: true
+
+issues:
+  exclude-rules:
+    # Exclude some linters from running on tests files
+    - path: _test\.go
+      linters:
+        - errcheck
+        - gosec
+
+    # Ignore long lines in generated files
+    - path: '(.+)_gen\.go'
+      linters:
+        - lll
+
+  max-issues-per-linter: 0
+  max-same-issues: 0
