@@ -60,12 +60,14 @@ func main() {
 	// Initialize handlers
 	occupationHandler := handlers.NewOccupationHandler(occupationRepo)
 	searchHandler := handlers.NewSearchHandler(occupationRepo)
+	createHandler := handlers.NewCreateCareersHandler(occupationRepo)
 
 	// Setup routes
 	r := mux.NewRouter()
 	r.HandleFunc("/health", healthCheck).Methods("GET")
 	r.HandleFunc("/search", searchHandler.Search).Methods("GET")
 	r.HandleFunc("/occupations", occupationHandler.GetAll).Methods("GET")
+	r.HandleFunc("/occupations", createHandler.CreateBatch).Methods("POST")
 	r.HandleFunc("/occupations/{id}", occupationHandler.GetByID).Methods("GET")
 
 	port := getEnv("PORT", "5000")

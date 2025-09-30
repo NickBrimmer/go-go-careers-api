@@ -74,3 +74,26 @@ func (r *OccupationRepository) Search(searchTerm string) ([]models.Occupation, e
 
 	return occupations, nil
 }
+
+func (r *OccupationRepository) CreateBatch(occupations []models.Occupation) error {
+	tx, err := r.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	stmt, err := tx.Prepare("INSERT INTO occupations (id, soc_id, soc_title, title, singular_title, description, typical_ed_level) VALUES (?, ?, ?, ?, ?, ?, ?)")
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	for _, occ := range occupations {
+		_, err := stmt.Exec(occ.ID, occ.SocID, occ.SocTitle, occ.Title, occ.SingularTitle, occ.Description, occ.TypicalEdLevel)
+		if err != nil {
+			return err
+		}
+	}
+
+	return tx.Commit()
+}
