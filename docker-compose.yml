@@ -20,12 +20,16 @@ services:
       - .:/home/apiUser/app
 
   nginx:
-    build: ./config/nginx
-    network_mode: host
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - app
 
   mysql:
-    image: mysql:8
-    command: --default-authentication-plugin=mysql_native_password
+    image: mysql:8.0
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
       MYSQL_DATABASE: ${DB_NAME:-go_careers}
@@ -35,6 +39,7 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+      - ./seed_data/seed_data.sql:/docker-entrypoint-initdb.d/seed_data.sql
 
 volumes:
   mysql_data:
