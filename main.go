@@ -10,12 +10,11 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
-	"go-careers/server/handlers"
+	"go-careers/handlers"
+	"go-careers/repository"
 )
 
-var db *sql.DB
-
-func initDB() {
+func initDB() *sql.DB {
 	dbHost := getEnv("DB_HOST", "localhost")
 	dbPort := getEnv("DB_PORT", "3306")
 	dbUser := getEnv("DB_USER", "root")
@@ -25,8 +24,7 @@ func initDB() {
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true",
 		dbUser, dbPassword, dbHost, dbPort, dbName)
 
-	var err error
-	db, err = sql.Open("mysql", dsn)
+	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		log.Fatal("Error connecting to database:", err)
 	}
@@ -36,6 +34,7 @@ func initDB() {
 	}
 
 	log.Println("Connected to database successfully")
+	return db
 }
 
 func getEnv(key, fallback string) string {
@@ -52,14 +51,20 @@ func healthCheck(w http.ResponseWriter, r *http.Request) {
 
 
 func main() {
-	initDB()
+	db := initDB()
 	defer db.Close()
 
-	r := mux.NewRouter()
+	// Initialize repository
+	occupationRepo := repository.NewOccupationRepository(db)
 
+	// Initialize handlers
+	occupationHandler := handlers.NewOccupationHandler(occupationRepo)
+
+	// Setup routes
+	r := mux.NewRouter()
 	r.HandleFunc("/health", healthCheck).Methods("GET")
-	r.HandleFunc("/occupations", handlers.GetOccupations(db)).Methods("GET")
-	r.HandleFunc("/occupations/{id}", handlers.GetOccupation(db)).Methods("GET")
+	r.HandleFunc("/occupations", occupationHandler.GetAll).Methods("GET")
+	r.HandleFunc("/occupations/{id}", occupationHandler.GetByID).Methods("GET")
 
 	port := getEnv("PORT", "5000")
 	log.Printf("Server starting on port %s", port)
