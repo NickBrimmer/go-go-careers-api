@@ -8,10 +8,10 @@ import (
 )
 
 type SearchHandler struct {
-	repo *repository.SearchRepository
+	repo *repository.OccupationRepository
 }
 
-func NewSearchHandler(repo *repository.SearchRepository) *SearchHandler {
+func NewSearchHandler(repo *repository.OccupationRepository) *SearchHandler {
 	return &SearchHandler{repo: repo}
 }
 
@@ -23,7 +23,7 @@ func (h *SearchHandler) Search(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	results, err := h.repo.SearchOccupations(query)
+	results, err := h.repo.Search(query)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

@@ -54,13 +54,12 @@ func main() {
 	db := initDB()
 	defer db.Close()
 
-	// Initialize repositories
+	// Initialize repository
 	occupationRepo := repository.NewOccupationRepository(db)
-	searchRepo := repository.NewSearchRepository(db)
 
 	// Initialize handlers
 	occupationHandler := handlers.NewOccupationHandler(occupationRepo)
-	searchHandler := handlers.NewSearchHandler(searchRepo)
+	searchHandler := handlers.NewSearchHandler(occupationRepo)
 
 	// Setup routes
 	r := mux.NewRouter()
