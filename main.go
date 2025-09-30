@@ -54,15 +54,18 @@ func main() {
 	db := initDB()
 	defer db.Close()
 
-	// Initialize repository
+	// Initialize repositories
 	occupationRepo := repository.NewOccupationRepository(db)
+	searchRepo := repository.NewSearchRepository(db)
 
 	// Initialize handlers
 	occupationHandler := handlers.NewOccupationHandler(occupationRepo)
+	searchHandler := handlers.NewSearchHandler(searchRepo)
 
 	// Setup routes
 	r := mux.NewRouter()
 	r.HandleFunc("/health", healthCheck).Methods("GET")
+	r.HandleFunc("/search", searchHandler.Search).Methods("GET")
 	r.HandleFunc("/occupations", occupationHandler.GetAll).Methods("GET")
 	r.HandleFunc("/occupations/{id}", occupationHandler.GetByID).Methods("GET")
 
