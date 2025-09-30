@@ -10,6 +10,7 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
+	"go-careers/cache"
 	"go-careers/handlers"
 	"go-careers/middleware"
 	"go-careers/repository"
@@ -55,8 +56,27 @@ func main() {
 	db := initDB()
 	defer db.Close()
 
+	// Initialize Redis cache (optional - gracefully degrades if unavailable)
+	var redisCache *cache.RedisCache
+	redisHost := getEnv("REDIS_HOST", "")
+	redisPort := getEnv("REDIS_PORT", "6379")
+
+	if redisHost != "" {
+		var err error
+		redisCache, err = cache.NewRedisCache(redisHost, redisPort)
+		if err != nil {
+			log.Printf("Warning: Failed to connect to Redis: %v. Continuing without cache.", err)
+			redisCache = nil
+		} else {
+			defer redisCache.Close()
+			log.Println("Connected to Redis cache successfully")
+		}
+	} else {
+		log.Println("Redis not configured. Running without cache.")
+	}
+
 	// Initialize repository
-	occupationRepo := repository.NewOccupationRepository(db)
+	occupationRepo := repository.NewOccupationRepository(db, redisCache)
 
 	// Initialize handlers
 	occupationHandler := handlers.NewOccupationHandler(occupationRepo)

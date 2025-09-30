@@ -9,7 +9,11 @@ main
 # Go
 *.test
 *.out
+*.cover
+coverage.out
+coverage.html
 go.work
+go.work.sum
 
 # Air live reload
 tmp/
@@ -17,6 +21,7 @@ tmp/
 # Environment variables
 .env
 .env.local
+.env.production
 
 # IDE
 .vscode/
@@ -24,13 +29,26 @@ tmp/
 *.swp
 *.swo
 *~
+.project
+.settings/
 
 # OS
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 
 # Docker volumes (if any local data)
 mysql_data/
+redis_data/
 
 # Logs
 *.log
+
+# Temporary files
+*.tmp
+*.bak
+*.backup
