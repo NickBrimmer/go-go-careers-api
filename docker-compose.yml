@@ -6,14 +6,15 @@ services:
       GO_ENV: development
       DB_HOST: mysql
       DB_PORT: 3306
-      DB_USER: ${DB_USER}
-      DB_PASSWORD: ${DB_PASSWORD}
-      DB_NAME: ${DB_NAME}
+      # DB_USER: ${DB_USER}
+      # DB_PASSWORD: ${DB_PASSWORD}
+      # DB_NAME: ${DB_NAME}
     env_file:
       - path: .env
         required: false
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     ports:
       - "5000:5000"
     volumes:
@@ -40,6 +41,11 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
       - ./seed_data/seed_data.sql:/docker-entrypoint-initdb.d/seed_data.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
 volumes:
   mysql_data:
