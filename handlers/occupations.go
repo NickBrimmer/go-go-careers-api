@@ -19,7 +19,7 @@ func NewOccupationHandler(repo *repository.OccupationRepository) *OccupationHand
 func (h *OccupationHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 	occupations, err := h.repo.GetAll()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Failed to retrieve occupations", http.StatusInternalServerError)
 		return
 	}
 
@@ -33,7 +33,7 @@ func (h *OccupationHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 
 	occ, err := h.repo.GetByID(id)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Failed to retrieve occupation", http.StatusInternalServerError)
 		return
 	}
 
